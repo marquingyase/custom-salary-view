@@ -9,8 +9,8 @@ export default function UserSalaryForm({
     formData: {
         name: string;
         email: string;
-        local_currency_amount: string;
-        local_currency_code: string;
+        salaryAmount: string;
+        localCurrencyCode: string;
     };
     handleChange: (
         e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -22,9 +22,12 @@ export default function UserSalaryForm({
     return (
         <div className=" bg-white w-full md:max-w-md mx-auto">
             {/* Header with icon and title */}
-            <div className="flex justify-center font-bold mb-4 bg-blue-900 text-white space-x-2 px-8 py-12">
-                <GiTakeMyMoney className="text-3xl" />
-                <h2 className="text-2xl">Salary Details</h2>
+            <div className="mb-4 bg-blue-900 text-white space-x-2 px-8 py-12">
+                <div className="flex font-bold items-center space-x-2">
+                    <GiTakeMyMoney className="text-7xl" />
+                    <h2 className="text-2xl">Welcome to Salary Management</h2>
+                </div>
+                <p className="text-gray-200 italic">Manage your salary records efficiently.</p>
             </div>
 
             {/* Form for user salary input */}
@@ -58,14 +61,14 @@ export default function UserSalaryForm({
                     />
                 </div>
                 <div className="mb-4">
-                    <label className="block text-gray-700 mb-1 text-sm font-semibold" htmlFor="local_currency_amount">
+                    <label className="block text-gray-700 mb-1 text-sm font-semibold" htmlFor="salaryAmount">
                         Salary Amount:
                     </label>
                     <input
                         type="number"
-                        id="local_currency_amount"
-                        name="local_currency_amount"
-                        value={formData.local_currency_amount}
+                        id="salaryAmount"
+                        name="salaryAmount"
+                        value={formData.salaryAmount}
                         onChange={handleChange}
                         className="w-full px-3 py-2 border border-gray-300 outline-none focus:border-blue-600"
                         min="0"
@@ -74,13 +77,13 @@ export default function UserSalaryForm({
                     />
                 </div>
                 <div className="mb-8">
-                    <label className="block text-gray-700 mb-1 text-sm font-semibold" htmlFor="local_currency_code">
+                    <label className="block text-gray-700 mb-1 text-sm font-semibold" htmlFor="localCurrencyCode">
                         Currency Code:
                     </label>
                     <select
-                        id="local_currency_code"
-                        name="local_currency_code"
-                        value={formData.local_currency_code}
+                        id="localCurrencyCode"
+                        name="localCurrencyCode"
+                        value={formData.localCurrencyCode}
                         onChange={handleChange}
                         className="w-full px-3 py-2 border border-gray-300 outline-none focus:border-blue-600"
                         required

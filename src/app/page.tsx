@@ -2,7 +2,9 @@
 
 import UserSalaryForm from "@/components/UserSalaryForm";
 import axios from "axios";
+import Link from "next/link";
 import { useState } from "react";
+import { toast, ToastContainer } from "react-toastify";
 
 
 export default function Home() {
@@ -10,8 +12,8 @@ export default function Home() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    local_currency_amount: '',
-    local_currency_code: 'EUR'
+    salaryAmount: '',
+    localCurrencyCode: 'EUR'
   });
 
   const handleChange = (
@@ -26,25 +28,36 @@ export default function Home() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      // await axios.post('/api/salaries', formData);
-      console.log("Form submitted:", formData);
-      setFormData({
-        name: '',
-        email: '',
-        local_currency_amount: '',
-        local_currency_code: 'EUR'
-      });
+      await axios.post('http://127.0.0.1:8000/api/salaries', formData)
+        .then(() => {
+          toast.success("Salary submitted successfully!");
+          setFormData({
+            name: '',
+            email: '',
+            salaryAmount: '',
+            localCurrencyCode: 'EUR'
+          })
+        }).catch((error) => {
+          toast.error("Error submitting form:", error);
+        })
     } catch (error) {
       console.error("Error submitting form:", error);
     }
   };
   return (
-    <main className="min-h-screen md:flex md:items-center md:justify-center bg-gray-100">
+    <main className="min-h-screen md:flex flex-col md:items-center md:justify-center bg-gray-100">
       <UserSalaryForm
         formData={formData}
         handleChange={handleChange}
         handleSubmit={handleSubmit}
       />
+
+      <div className="mt-8">
+        <p className="text-center text-gray-600">
+          <Link href="/dashboard" className="text-blue-600 underline">Go to Dashboard</Link>
+        </p>
+      </div>
+      <ToastContainer position="top-center" />
     </main>
   );
 }
