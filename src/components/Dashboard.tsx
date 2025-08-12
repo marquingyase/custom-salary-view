@@ -1,12 +1,15 @@
+import Link from "next/link";
+import { FaSave } from "react-icons/fa";
+import { MdCancel, MdDelete, MdModeEdit } from "react-icons/md";
 import { TbReportAnalytics } from "react-icons/tb";
 
 interface RecordType {
     id: string | number;
     name: string;
     email: string;
-    local_currency_amount: number;
-    local_currency_code: string;
-    salary_in_euros: number;
+    salaryAmount: number;
+    localCurrencyCode: string;
+    salaryInEuros: number;
     commission: number;
 }
 
@@ -17,11 +20,12 @@ interface DashboardProps {
     handleSave: (id: string | number) => void;
     handleDelete: (id: string | number) => void;
     handleCancel: () => void;
+    handleExport: () => void;
     editingId: string | number | null;
     editForm: {
-        local_currency_amount: number;
-        local_currency_code: string;
-        salary_in_euros: number;
+        salaryAmount: number;
+        localCurrencyCode: string;
+        salaryInEuros: number;
         commission: number;
     };
     handleEditChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
@@ -32,19 +36,23 @@ export default function Dashboard({
     loading,
     handleEditClick,
     handleSave,
-    handleDelete,
     handleCancel,
     editingId,
     editForm,
     handleEditChange,
+    handleDelete,
+    handleExport
 }: DashboardProps) {
 
     if (loading) {
-        return <div className="text-center py-8">Loading...</div>;
+        return <div className="min-h-screen flex items-center justify-center gap-1">
+            <div className="animate-spin h-4 w-4 border-4 border-blue-500 rounded-full border-t-transparent"></div>
+            <p className="text-blue-500 animate-pulse">Loading records...</p>
+        </div>;
     }
 
     return (
-        <div className="">
+        <div className="relative min-h-screen">
             <div className="flex justify-center font-bold bg-blue-900 text-white space-x-2 px-8 py-6">
                 <TbReportAnalytics className="text-3xl" />
                 <h2 className="text-2xl">Salary Records</h2>
@@ -55,8 +63,8 @@ export default function Dashboard({
                         <tr>
                             <th className="py-3 px-4 text-left">Name</th>
                             <th className="py-3 px-4 text-left">Email</th>
-                            <th className="py-3 px-4 text-left">Local Amount</th>
-                            <th className="py-3 px-4 text-left">Currency</th>
+                            <th className="py-3 px-4 text-left">Local Salary</th>
+                            <th className="py-3 px-4 text-left">Local Currency</th>
                             <th className="py-3 px-4 text-left">Salary (€)</th>
                             <th className="py-3 px-4 text-left">Commission (€)</th>
                             <th className="py-3 px-4 text-left">Displayed Salary (€)</th>
@@ -72,42 +80,43 @@ export default function Dashboard({
                                     {editingId === record.id ? (
                                         <input
                                             type="number"
-                                            name="local_currency_amount"
-                                            value={editForm.local_currency_amount}
+                                            name="salaryAmount"
+                                            value={editForm.salaryAmount}
                                             onChange={handleEditChange}
-                                            className="w-24 px-2 py-1 border rounded"
+                                            className="w-24 px-2 py-1 border border-gray-300 outline-none focus:border-blue-600"
                                         />
                                     ) : (
-                                        record.local_currency_amount
+                                        record.salaryAmount
                                     )}
                                 </td>
                                 <td className="py-3 px-4">
                                     {editingId === record.id ? (
                                         <select
-                                            name="local_currency_code"
-                                            value={editForm.local_currency_code}
+                                            name="localCurrencyCode"
+                                            value={editForm.localCurrencyCode}
                                             onChange={handleEditChange}
-                                            className="px-2 py-1 border rounded"
+                                            className="px-2 py-1 border border-gray-300 outline-none focus:border-blue-600"
                                         >
                                             <option value="EUR">EUR</option>
                                             <option value="USD">USD</option>
                                             <option value="GBP">GBP</option>
+                                            <option value="GHC">GHC</option>
                                         </select>
                                     ) : (
-                                        record.local_currency_code
+                                        record.localCurrencyCode
                                     )}
                                 </td>
                                 <td className="py-3 px-4">
                                     {editingId === record.id ? (
                                         <input
                                             type="number"
-                                            name="salary_in_euros"
-                                            value={editForm.salary_in_euros}
+                                            name="salaryInEuros"
+                                            value={editForm.salaryInEuros}
                                             onChange={handleEditChange}
-                                            className="w-24 px-2 py-1 border rounded"
+                                            className="w-24 px-2 py-1 border border-gray-300 outline-none focus:border-blue-600"
                                         />
                                     ) : (
-                                        record.salary_in_euros
+                                        record.salaryInEuros
                                     )}
                                 </td>
                                 <td className="py-3 px-4">
@@ -117,44 +126,75 @@ export default function Dashboard({
                                             name="commission"
                                             value={editForm.commission}
                                             onChange={handleEditChange}
-                                            className="w-24 px-2 py-1 border rounded"
+                                            className="w-24 px-2 py-1 border border-gray-300 outline-none focus:border-blue-600"
                                         />
                                     ) : (
                                         record.commission
                                     )}
                                 </td>
                                 <td className="py-3 px-4 font-medium">
-                                    {(record.salary_in_euros + record.commission).toFixed(2)}
+                                    {Number(record.salaryInEuros ?? 0) + Number(record.commission)}
                                 </td>
                                 <td className="py-3 px-4">
                                     {editingId === record.id ? (
                                         <div className="flex space-x-2">
                                             <button
                                                 onClick={() => handleSave(record.id)}
-                                                className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600"
+                                                className="cursor-pointer text-green-500 border border-green-300 p-1 rounded hover:text-green-600 hover:bg-gray-200"
                                             >
-                                                Save
+                                                <FaSave className="text-xl" />
                                             </button>
                                             <button
                                                 onClick={handleCancel}
-                                                className="px-3 py-1 bg-gray-500 text-white rounded hover:bg-gray-600"
+                                                className="cursor-pointer text-gray-500 border border-gray-300 p-1 rounded hover:text-gray-600 hover:bg-gray-200"
                                             >
-                                                Cancel
+                                                <MdCancel className="text-xl" />
                                             </button>
                                         </div>
                                     ) : (
-                                        <button
-                                            onClick={() => handleEditClick(record)}
-                                            className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
-                                        >
-                                            Edit
-                                        </button>
+                                        <div className="flex space-x-2">
+                                            <button
+                                                onClick={() => handleEditClick(record)}
+                                                className="cursor-pointer text-gray-500 border border-gray-300 p-1 rounded hover:text-gray-600 hover:bg-gray-200"
+                                            >
+                                                <MdModeEdit className="text-xl" />
+                                            </button>
+                                            <button
+                                                onClick={() => handleDelete(record.id)}
+                                                className="cursor-pointer text-red-500 border border-red-300 p-1 rounded hover:text-red-600 hover:bg-gray-200"
+                                            >
+                                                <MdDelete className="text-xl" />
+                                            </button>
+                                        </div>
                                     )}
                                 </td>
                             </tr>
                         ))}
+
+                        {records.length === 0 && !loading && (
+                            <tr>
+                                <td colSpan={7} className="py-3 px-4 text-center">
+                                    No records found.
+                                </td>
+                            </tr>
+                        )}
                     </tbody>
                 </table>
+            </div>
+
+            <div className="absolute bottom-4 right-4 mt-4">
+                <Link
+                    href="/"
+                    className="px-4 py-2 text-blue-600 hover:text-blue-700 underline"
+                >
+                    Go to Home
+                </Link>
+                <button
+                    onClick={() => handleExport()}
+                    className="cursor-pointer bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                >
+                    Export to CSV
+                </button>
             </div>
         </div>
     );

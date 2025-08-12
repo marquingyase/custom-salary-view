@@ -9,9 +9,9 @@ interface RecordType {
     id: string | number;
     name: string;
     email: string;
-    local_currency_amount: number;
-    local_currency_code: string;
-    salary_in_euros: number;
+    salaryAmount: number;
+    localCurrencyCode: string;
+    salaryInEuros: number;
     commission: number;
 }
 
@@ -20,9 +20,9 @@ export default function DashboardPage() {
     const [loading, setLoading] = useState(true);
     const [editingId, setEditingId] = useState<string | number | null>(null);
     const [editForm, setEditForm] = useState({
-        local_currency_amount: '',
-        local_currency_code: '',
-        salary_in_euros: '',
+        salaryAmount: 0,
+        localCurrencyCode: '',
+        salaryInEuros: 0,
         commission: 500
     });
 
@@ -32,7 +32,7 @@ export default function DashboardPage() {
 
     const fetchRecords = async () => {
         try {
-            const response = await axios.get('/api/salaries');
+            const response = await axios.get('http://127.0.0.1:8000/api/salaries');
             setRecords(response.data);
             setLoading(false);
         } catch (error) {
@@ -44,9 +44,9 @@ export default function DashboardPage() {
     const handleEditClick = (record: RecordType) => {
         setEditingId(record.id);
         setEditForm({
-            local_currency_amount: record.local_currency_amount.toString(),
-            local_currency_code: record.local_currency_code,
-            salary_in_euros: record.salary_in_euros.toString(),
+            salaryAmount: record.salaryAmount,
+            localCurrencyCode: record.localCurrencyCode,
+            salaryInEuros: record.salaryInEuros,
             commission: record.commission
         });
     };
@@ -60,7 +60,7 @@ export default function DashboardPage() {
 
     const handleSave = async (id: string | number) => {
         try {
-            await axios.put(`/api/salaries/${id}`, editForm);
+            await axios.put(`http://127.0.0.1:8000/api/salaries/${id}`, editForm);
             setEditingId(null);
             fetchRecords(); // Refresh data
         } catch (error) {
@@ -68,11 +68,35 @@ export default function DashboardPage() {
         }
     };
 
+    const handleDelete = async (id: string | number) => {
+        try {
+            await axios.delete(`http://127.0.0.1:8000/api/salaries/${id}`);
+            fetchRecords(); // Refresh data
+        } catch (error) {
+            console.error('Error deleting record:', error);
+        }
+    };
+
     const handleCancel = () => {
         setEditingId(null);
     };
 
-
+    const handleExport = () => {
+        import('xlsx').then((XLSX) => {
+            const worksheet = XLSX.utils.json_to_sheet(records.map(record => ({
+                Name: record.name,
+                Email: record.email,
+                'Local Salary': record.salaryAmount,
+                'Local Currency': record.localCurrencyCode,
+                'Salary (€)': record.salaryInEuros,
+                'Commission (€)': record.commission,
+                'Displayed Salary (€)': Number(record.salaryInEuros ?? 0) + Number(record.commission)
+            })));
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Salary Records");
+            XLSX.writeFile(workbook, "SalaryRecords.xlsx");
+        });
+    };
 
     return (
         <>
@@ -80,12 +104,13 @@ export default function DashboardPage() {
                 records={records}
                 loading={loading}
                 handleEditClick={handleEditClick}
-                fetchRecords={fetchRecords}
                 editingId={editingId}
                 editForm={editForm}
                 handleEditChange={handleEditChange}
                 handleCancel={handleCancel}
                 handleSave={handleSave}
+                handleDelete={handleDelete}
+                handleExport={handleExport}
             />
         </>
     );

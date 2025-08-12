@@ -91,7 +91,7 @@ export default function UserSalaryForm({
                         <option value="EUR">EUR (Euro)</option>
                         <option value="USD">USD (US Dollar)</option>
                         <option value="GBP">GBP (British Pound)</option>
-                        {/* Add more currencies as needed */}
+                        <option value="GHC">GHC (Ghana Cedi)</option>
                     </select>
                 </div>
                 <button
